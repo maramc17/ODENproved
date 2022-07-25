@@ -2,7 +2,7 @@
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.2-orange.svg)](https://tensorflow.org)
 # ODEN
 <p align="center">
-  <img src="Figures/README_pngs/burst.gif">
+  <img src="../Figures/README_pngs/burst.gif">
 </p>
 
 | &nbsp;        | &nbsp;           |
@@ -133,12 +133,12 @@ The third order derivative will now be available in `DiffEq.py` using `self.d3yd
 
 * Neural Network Solver numerical solution is overlayed on the true solution. Note the solution is effectively continuous in the domain 
 
-![Neural Network Solver solution to First Order ODE](Figures/README_pngs/Figure_1.png)
+![Neural Network Solver solution to First Order ODE](../Figures/README_pngs/Figure_1.png)
 
 * A speed up animation of the training process:
 
 <p align="center">
-  <img src="Figures/README_pngs/firstorder.gif">
+  <img src="../Figures/README_pngs/firstorder.gif">
 </p>
 
 ### Schrodinger equation example:
@@ -149,12 +149,12 @@ The third order derivative will now be available in `DiffEq.py` using `self.d3yd
 
 * Neural Network Solver numerical solution is overlayed on the true solution. Note the solution is effectively continuous in the domain 
 
-![Neural Network Solver solution to Schrodinger equation with harmonic potential](Figures/README_pngs/Figure_3.png)
+![Neural Network Solver solution to Schrodinger equation with harmonic potential](../Figures/README_pngs/Figure_3.png)
 
 * A speed up animation of the training process:
 
 <p align="center">
-  <img src="Figures/README_pngs/schrodinger.gif">
+  <img src="../Figures/README_pngs/schrodinger.gif">
 </p>
 
 
@@ -166,10 +166,10 @@ The third order derivative will now be available in `DiffEq.py` using `self.d3yd
 
 * Neural Network Solver numerical solution is overlayed on the true solution. Note the solution is effectively continuous in the domain 
 
-![Neural Network Solver solution to Burst equation with n = 10](Figures/README_pngs/Figure_4_batch.png)
+![Neural Network Solver solution to Burst equation with n = 10](../Figures/README_pngs/Figure_4_batch.png)
 
 * A speed up animation of the training process:
 
 <p align="center">
-  <img src="Figures/README_pngs/burst.gif">
+  <img src="../Figures/README_pngs/burst.gif">
 </p>
