@@ -39,7 +39,7 @@ class ODEsolverf:
 
         print("------- Model compiled -------")
 
-        # Raise an exception is both prediction_save and weights_save are True
+        # Raise an exception if both prediction_save and weights_save are True
         if prediction_save and weights_save:
             raise Exception("Both prediciton_save and weights_save are set to True.")
         if prediction_save:

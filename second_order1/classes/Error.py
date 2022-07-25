@@ -13,7 +13,7 @@ class Error:
 
         error = 0
         for value, exact in zip(self.y_predict, self.y_exact):
-            error = error + abs((exact - value))**2
+            error += abs(exact - value)**2
         print(error)
 
         return error

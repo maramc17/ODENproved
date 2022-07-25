@@ -3,17 +3,43 @@ from matplotlib.axis import Axis
 import matplotlib.pyplot as plt
 
 
+def plotGraph():
+    plt.show()
+
+
+def makeNString(N):
+    return str(N) + " Data Points"
+
 
 class LossPlot:
+    def __init__(self):
+        self.losses = []
+        self.nums = []
+        # self.loss = loss
+        # self.NString = NString
 
-    def __init__(self, loss, NString):
+    def add_loss(self, loss):
+        self.losses.append(loss)
+
+    def add_num(self, num):
+        self.nums.append(num)
+
+    def add_plot_data(self, loss, num):
+        self.add_loss(loss)
+        self.add_num(num)
+
+    def plot_graph(self):
         fig1 = plt.figure(1)
         ax = fig1.add_subplot()
-        ax.plot(loss, linewidth=2, label=NString)
-        ax.set_yscale('log')
-        # plt.xlim(500, 25000)
-        plt.ylim(10**(-6), 1)
-        ax.legend(loc="upper right")
-        #plt.legend(loc=5, bbox_to_anchor=(0.5, 0., 0.5, 0.5))
+        for loss, num in zip(self.losses,self.nums):
+            NString = makeNString(num)
+
+            ax.plot(loss, linewidth=2, label=NString)
+            ax.set_yscale('log')
+            # plt.xlim(500, 25000)
+            plt.ylim(10 ** (-6), 1)
+            ax.legend(loc="upper right")
+            # plt.legend(loc=5, bbox_to_anchor=(0.5, 0., 0.5, 0.5))
         plt.xlabel("Epochs", fontsize=12)
         plt.ylabel("Loss", fontsize=12)
+        plt.show()

@@ -38,6 +38,9 @@ i = 0
 D = Dictionary()
 Dict = D.Dict
 DataSave = [0, .1, .2, .3, .4, .5, .6, .7, .8, .9, 1]
+
+loss_plot = LossPlot()
+
 for N in [10, 50, 100, 150, 200, 500, 1000]:
     a, b, h, alpha = 0, 1, np.sqrt(2), 1
     epochs = 25000
@@ -62,23 +65,25 @@ for N in [10, 50, 100, 150, 200, 500, 1000]:
 
     if N != 1000:
         NString = str(N) + " Data Points"
-        LossPlot(loss, NString)
-        match N:
-            case 10:
-                PTS_10 = solver.predict(DataSave)
-            case 50:
-                PTS_50 = solver.predict(DataSave)
-            case 100:
-                PTS_100 = solver.predict(DataSave)
-            case 150:
-                PTS_150 = solver.predict(DataSave)
-            case 200:
-                PTS_200 = solver.predict(DataSave)
-            case 500:
-                PTS_500 = solver.predict(DataSave)
-    else:
-        EXACT = solver.predict(DataSave)
+        loss_plot.add_plot_data(loss, N)
 
+    match N:
+        case 10:
+            PTS_10 = solver.predict(DataSave)
+        case 50:
+            PTS_50 = solver.predict(DataSave)
+        case 100:
+            PTS_100 = solver.predict(DataSave)
+        case 150:
+            PTS_150 = solver.predict(DataSave)
+        case 200:
+            PTS_200 = solver.predict(DataSave)
+        case 500:
+            PTS_500 = solver.predict(DataSave)
+        case _:
+            EXACT = solver.predict(DataSave)
+
+loss_plot.plot_graph()
 table = PrettyTable(['X PTS', 'Y_E', 'Y_10', 'Y_50', 'Y_100', 'Y_150', 'Y_200', 'Y_500'])
 
 for i in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
@@ -89,13 +94,11 @@ print(table)
 
 plt.show()
 
-i = 0
 y = []
-x = ['1/10', '1/50', '1/100', '1/150', '1/200', '1/500']
-for points in [PTS_10, PTS_50, PTS_100, PTS_150, PTS_200, PTS_500]:
-    print(x[i])
+for points, x in zip([PTS_10, PTS_50, PTS_100, PTS_150, PTS_200, PTS_500],
+                     ['1/10', '1/50', '1/100', '1/150', '1/200', '1/500']):
+    print(x)
     error = Error(EXACT, points)
     y.append(error.find_error())
-    i += 1
 
 error.plot_error(x, y)
