@@ -36,8 +36,11 @@ plt.rcParams['font.serif'] = "cm"
 i = 0
 D = Dictionary()
 Dict = D.Dict
-NString = ['Relu', 'Sigmoid', 'Tanh', 'Elu', 'Hard Sigmoid', 'linear', 'Selu', 'Softmax']
+NString = ['Sigmoid', 'Tanh', 'Hard Sigmoid', 'Softmax']
 DataSave = [0, .1, .2, .3, .4, .5, .6, .7, .8, .9, 1]
+
+loss_plot = LossPlot()
+
 for activation in [Dict["activation"]["relu"], Dict["activation"]["sigmoid"], Dict["activation"]["tanh"],
                    Dict["activation"]["elu"], Dict["activation"]["hard sigmoid"],
                    Dict["activation"]["linear"], Dict["activation"]["selu"], Dict["activation"]["softmax"]]:
@@ -62,33 +65,36 @@ for activation in [Dict["activation"]["relu"], Dict["activation"]["sigmoid"], Di
     x_predict = np.linspace(a, b, num=N)  # testing data: will include the end points
     y_predict = solver.predict(x_predict)
 
-    LossPlot(loss, NString[i])
-
-    if activation == Dict["activation"]["relu"]:
+    if activation == (Dict["activation"]["relu"]):
         relu = solver.predict(DataSave)
     elif activation == Dict["activation"]["sigmoid"]:
+        loss_plot.add_plot_data(loss, N)
         sigmoid = solver.predict(DataSave)
     elif activation == Dict["activation"]["tanh"]:
+        loss_plot.add_plot_data(loss, N)
         tanh = solver.predict(DataSave)
     elif activation == Dict["activation"]["elu"]:
         elu = solver.predict(DataSave)
     elif activation == Dict["activation"]["hard sigmoid"]:
+        loss_plot.add_plot_data(loss, N)
         hardsigmoid = solver.predict(DataSave)
     elif activation == Dict["activation"]["linear"]:
         linear = solver.predict(DataSave)
     elif activation == Dict["activation"]["selu"]:
         selu = solver.predict(DataSave)
     else:
+        loss_plot.add_plot_data(loss, N)
         softmax = solver.predict(DataSave)
 
-    i += 1
-
+loss_plot.plot_graph(NString)
 table = PrettyTable(['x PTS', 'Relu', 'Sigmoid', 'Tanh', 'Elu', 'Hard Sigmoid', 'linear', 'Selu', 'Softmax'])
 
 for i in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
-    table.add_row([round(DataSave[i], 1), round(*relu[i], 8), round(*sigmoid[i], 8), round(*tanh[i], 8), round(*elu[i], 8),
-            round(*hardsigmoid[i], 8), round(*linear[i], 8), round(*selu[i], 8), round(*softmax[i], 8)])
+    table.add_row(
+        [round(DataSave[i], 1), round(*relu[i], 8), round(*sigmoid[i], 8), round(*tanh[i], 8), round(*elu[i], 8),
+         round(*hardsigmoid[i], 8), round(*linear[i], 8), round(*selu[i], 8), round(*softmax[i], 8)])
 print(table)
 
-plt.show()
+# x = ['1/10', '1/50', '1/100', '1/150', '1/200', '1/500']
 
+# error = Error(EXACT, [PTS_10, PTS_50, PTS_100, PTS_150, PTS_200, PTS_500], x)

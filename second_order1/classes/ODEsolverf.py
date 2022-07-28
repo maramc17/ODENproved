@@ -4,8 +4,10 @@ import numpy as np
 import time
 from second_order1.classes.DiffEqf import DiffEqf
 
+
 class ODEsolverf:
-    def __init__(self, order, diffeqf, x, epochs, architecture, initializer, activation, optimizer, prediction_save,
+    def __init__(self, order, diffeqf, training_data, epochs, architecture, initializer, activation, optimizer,
+                 prediction_save,
                  weights_save, h, alpha):
 
         colorama.init()
@@ -14,10 +16,10 @@ class ODEsolverf:
         tf.keras.backend.set_floatx('float64')
         self.order = order
         self.diffeqf = diffeqf
-        self.x = x
+        self.training_data = training_data
         self.h = h
         self.alpha = alpha
-        self.n = len(self.x)
+        self.n = len(self.training_data)
         self.epochs = epochs
         self.architecture = architecture
         self.initializer = initializer
@@ -30,10 +32,10 @@ class ODEsolverf:
         self.weights_save = weights_save
 
         # Compile the model
-        x = self.x
-        x = tf.convert_to_tensor(x)
-        x = tf.reshape(x, (self.n, 1))
-        self.neural_net.compile(loss=self.custom_cost(x, h), optimizer=self.optimizer, experimental_run_tf_function=False)
+        training_data = tf.convert_to_tensor(training_data)
+        self.training_data = tf.reshape(training_data, (self.n, 1))
+        self.neural_net.compile(loss=self.custom_cost(training_data, h), optimizer=self.optimizer,
+                                experimental_run_tf_function=False)
         # Calling tf.config.experimental_run_functions_eagerly(True) will make all invocations of tf.function run
         # eagerly instead of running as a traced graph function.See tf.config.run_functions_eagerly for an example.
 
@@ -47,6 +49,54 @@ class ODEsolverf:
         if weights_save:
             self.weights = []
 
+    def add_layer(self, model, layer):
+        model.add(layer)
+
+    def build_input_layer(self, model):
+        input_tensor = tf.keras.layers.Input(shape=(1,))
+        self.add_layer(model, input_tensor)
+
+    def build_hidden_layer(self, model, nodes, activ_func="sigmoid", kernel_init='glorot_uniform', bias_init='zeros'):
+        hidden_layer = tf.keras.layers.Dense(nodes,
+                                             activation=activ_func,
+                                             kernel_initializer=kernel_init,
+                                             bias_initializer=bias_init
+                                             )
+        self.add_layer(model, hidden_layer)
+
+    def build_output_layer(self, model, nodes, activ_func="sigmoid", kernel_init="glorot_uniform"):
+        output_layer = tf.keras.layers.Dense(nodes, activation=activ_func, kernel_initializer=kernel_init)
+        self.add_layer(model,output_layer)
+
+    def build_model_new(self):
+        """
+        Builds a customized neural network model.
+        """
+        layers = self.architecture
+        kernel_initializer = self.initializer
+        activation = self.activation
+        model = tf.keras.Sequential()
+        num_hlayers = len(layers)
+
+        if num_hlayers >= 1:
+            """
+            Build the input layer
+            """
+            self.build_input_layer(model)
+            """
+            Build the hidden nodes
+            """
+            for nodes in layers[1:]:
+                self.build_hidden_layer(model, nodes, activation, kernel_initializer)
+            """
+            Build the output layer
+            """
+            self.build_output_layer(model, 1)
+        else:
+            self.build_output_layer(model, 1)
+
+        return model
+
     def build_model(self):
         """
         Builds a customized neural network model.
@@ -54,6 +104,8 @@ class ODEsolverf:
         architecture = self.architecture
         initializer = self.initializer
         activation = self.activation
+
+        model = tf.keras.Sequential()
 
         nb_hidden_layers = len(architecture)
         input_tensor = tf.keras.layers.Input(shape=(1,))
@@ -134,9 +186,9 @@ class ODEsolverf:
         neural_net : The built neural network returned by self.neural_net_model
         Trains the model according to x.
         """
-        x = self.x
-        x = tf.convert_to_tensor(x)
-        x = tf.reshape(x, (self.n, 1))
+        training_data = self.training_data
+        training_data = tf.convert_to_tensor(training_data)
+        training_data = tf.reshape(training_data, (self.n, 1))
         neural_net = self.neural_net
 
         # Train and save the predictions
@@ -146,12 +198,13 @@ class ODEsolverf:
             # Define custom callback for predictions during training
             class PredictionCallback(tf.keras.callbacks.Callback):
                 def on_epoch_end(self, epoch, logs={}):
-                    y_predict = neural_net.predict(x)
+                    y_predict = neural_net.predict(training_data)
                     predictions.append(y_predict)
                     print('Prediction saved at epoch: {}'.format(epoch))
 
             start_time = time.time()
-            history = neural_net.fit(x=x, y=x, batch_size=self.n, epochs=self.epochs, callbacks=[PredictionCallback()])
+            history = neural_net.fit(training_data=training_data, y=training_data,
+                                     batch_size=self.n, epochs=self.epochs, callbacks=[PredictionCallback()])
             print(f"{self.GREEN}---   %s seconds ---  " % (time.time() - start_time))
             print(f"{self.RESET}")
             predictions = tf.reshape(predictions, (self.epochs, self.n))
@@ -173,14 +226,14 @@ class ODEsolverf:
                     print('Weights and biases saved at epoch: {}'.format(epoch))
 
             start_time = time.time()
-            history = neural_net.fit(x=x, y=x, batch_size=self.n, epochs=self.epochs, callbacks=[PredictionCallback()])
+            history = neural_net.fit(x=training_data, y=training_data, batch_size=self.n, epochs=self.epochs, callbacks=[PredictionCallback()])
             print(f"{self.GREEN}---   %s seconds ---  " % (time.time() - start_time))
             print(f"{self.RESET}")
 
         # Train without any saving
         elif not self.prediction_save and not self.weights_save:
             start_time = time.time()
-            history = neural_net.fit(x=x, y=x, batch_size=self.n, epochs=self.epochs)
+            history = neural_net.fit(x=training_data, y=training_data, batch_size=self.n, epochs=self.epochs)
             print(f"{self.GREEN}---   %s seconds ---  " % (time.time() - start_time))
             print(f"{self.RESET}")
 
@@ -201,7 +254,7 @@ class ODEsolverf:
         """
         domain_length = len(x_predict)
         x_predict = tf.convert_to_tensor(x_predict)
-        x = tf.reshape(x_predict, (domain_length, 1))
+        x_predict = tf.reshape(x_predict, (domain_length, 1))
         y_predict = self.neural_net.predict(x_predict)
         return y_predict
 
