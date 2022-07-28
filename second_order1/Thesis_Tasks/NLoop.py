@@ -46,7 +46,7 @@ loss_plot = LossPlot()
 
 for N in [10, 50, 100, 150, 200, 500, 1000]:
     a, b, h, alpha = 0, 1, np.sqrt(2), 1
-    epochs = 250
+    epochs = 25000
 
     order = 2
     diffEqf = "first"
@@ -59,7 +59,7 @@ for N in [10, 50, 100, 150, 200, 500, 1000]:
     weights_save = False
 
     solver = ODEsolverf(order, diffEqf, training_data, epochs, architecture, initializer, activation, optimizer, prediction_save,
-                        weights_save, h, alpha)
+                                                         weights_save, h, alpha)
     history = solver.train()
     epoch, loss = solver.get_loss(history)
     x_predict = np.linspace(a, b, num=N)  # testing data: will include the end points
