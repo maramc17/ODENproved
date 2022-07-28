@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from IPython.display import set_matplotlib_formats
+import matplotlib_inline
 from prettytable import PrettyTable
 
 # Mara classes
@@ -10,7 +11,7 @@ from second_order1.classes.Dictionary import Dictionary
 from second_order1.classes.LossPlot import LossPlot
 from second_order1.classes.Error import Error
 
-set_matplotlib_formats('pdf', 'svg')
+#set_matplotlib_formats('pdf', 'svg')
 
 plt.rc('text', usetex=False)
 plt.rc('font', family='serif')
@@ -49,16 +50,15 @@ for N in [10, 50, 100, 150, 200, 500, 1000]:
 
     order = 2
     diffEqf = "first"
-    x = np.linspace(a, b, N, endpoint=False)[1:]  # training data: for x values without considering the end points
+    training_data = np.linspace(a, b, N, endpoint=False)[1:]  # for training values without considering the end points
     architecture = [16]  # one hidden layer with 16 neurons
     initializer = Dict["initializer"]["GlorotNormal"]
     activation = Dict["activation"]["sigmoid"]
     optimizer = Dict["optimizer"]["Adamax"]
     prediction_save = False
-
     weights_save = False
 
-    solver = ODEsolverf(order, diffEqf, x, epochs, architecture, initializer, activation, optimizer, prediction_save,
+    solver = ODEsolverf(order, diffEqf, training_data, epochs, architecture, initializer, activation, optimizer, prediction_save,
                         weights_save, h, alpha)
     history = solver.train()
     epoch, loss = solver.get_loss(history)
