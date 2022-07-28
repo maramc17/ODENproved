@@ -4,8 +4,9 @@ import numpy as np
 import time
 from second_order1.classes.DiffEqf import DiffEqf
 
+
 class ODEsolverf:
-    def __init__(self, order, diffeqf, x, epochs, architecture, initializer, activation, optimizer, prediction_save,
+    def __init__(self, order, diffeqf, training_data, epochs, architecture, initializer, activation, optimizer, prediction_save,
                  weights_save, h, alpha):
 
         colorama.init()
@@ -14,10 +15,10 @@ class ODEsolverf:
         tf.keras.backend.set_floatx('float64')
         self.order = order
         self.diffeqf = diffeqf
-        self.x = x
+        self.training_data = training_data
         self.h = h
         self.alpha = alpha
-        self.n = len(self.x)
+        self.n = len(self.training_data)
         self.epochs = epochs
         self.architecture = architecture
         self.initializer = initializer
@@ -30,10 +31,10 @@ class ODEsolverf:
         self.weights_save = weights_save
 
         # Compile the model
-        x = self.x
-        x = tf.convert_to_tensor(x)
-        x = tf.reshape(x, (self.n, 1))
-        self.neural_net.compile(loss=self.custom_cost(x, h), optimizer=self.optimizer, experimental_run_tf_function=False)
+        # training_data = self.training_data
+        training_data = tf.convert_to_tensor(training_data)
+        training_data = tf.transpose(training_data)
+        self.neural_net.compile(loss=self.custom_cost(training_data, h), optimizer=self.optimizer, experimental_run_tf_function=False)
         # Calling tf.config.experimental_run_functions_eagerly(True) will make all invocations of tf.function run
         # eagerly instead of running as a traced graph function.See tf.config.run_functions_eagerly for an example.
 
@@ -80,7 +81,7 @@ class ODEsolverf:
     @tf.function
     def NN_output(self, x):
         """
-        x : must be of shape = (?, 1)
+        training_data : must be of shape = (?, 1)
         Returns the output of the neural net
         """
         y = self.neural_net(x)
@@ -119,7 +120,7 @@ class ODEsolverf:
             x_0 = 0
             x_1 = 1
 
-            # y_prime = self.NN_output(np.asarray(x))[0][0] - self.NN_output(np.asarray([[x_0]]))[0][0]
+            # y_prime = self.NN_output(np.asarray(training_data))[0][0] - self.NN_output(np.asarray([[x_0]]))[0][0]
             def loss(y_true, y_pred):
                 differential_cost_term = tf.math.reduce_sum(self.differential_cost(x, h))
                 boundary_cost_term = tf.square(self.NN_output(np.asarray([[x_1]]))[0][0] - 0)
@@ -132,9 +133,9 @@ class ODEsolverf:
     def train(self):
         """
         neural_net : The built neural network returned by self.neural_net_model
-        Trains the model according to x.
+        Trains the model according to training_data.
         """
-        x = self.x
+        x = self.training_data
         x = tf.convert_to_tensor(x)
         x = tf.reshape(x, (self.n, 1))
         neural_net = self.neural_net
@@ -200,8 +201,8 @@ class ODEsolverf:
         x_predict : domain of prediction (ex: x_predict = np.linespace(0, 1, 256))
         """
         domain_length = len(x_predict)
-        x_predict = tf.convert_to_tensor(x_predict)
-        x = tf.reshape(x_predict, (domain_length, 1))
+        x_predict_t = tf.convert_to_tensor(x_predict)
+        x_predict = tf.reshape(x_predict_t, shape=(domain_length, 1))
         y_predict = self.neural_net.predict(x_predict)
         return y_predict
 

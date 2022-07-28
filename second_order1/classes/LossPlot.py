@@ -1,10 +1,4 @@
-import numpy as np
-from matplotlib.axis import Axis
 import matplotlib.pyplot as plt
-
-
-def plotGraph():
-    plt.show()
 
 
 def makeNString(N):
@@ -28,13 +22,11 @@ class LossPlot:
         self.add_loss(loss)
         self.add_num(num)
 
-    def plot_graph(self):
+    def plot_graph(self, Nstring):
         fig1 = plt.figure(1)
         ax = fig1.add_subplot()
-        for loss, num in zip(self.losses,self.nums):
-            NString = makeNString(num)
-
-            ax.plot(loss, linewidth=2, label=NString)
+        for loss, num, name in zip(self.losses, self.nums, Nstring):
+            ax.plot(loss, linewidth=2, label=name)
             ax.set_yscale('log')
             # plt.xlim(500, 25000)
             plt.ylim(10 ** (-6), 1)
