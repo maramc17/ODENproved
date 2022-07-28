@@ -65,7 +65,7 @@ for activation in [Dict["activation"]["relu"], Dict["activation"]["sigmoid"], Di
     x_predict = np.linspace(a, b, num=N)  # testing data: will include the end points
     y_predict = solver.predict(x_predict)
 
-    if activation == (Dict["activation"]["relu"]):
+    if activation == Dict["activation"]["relu"]:
         relu = solver.predict(DataSave)
     elif activation == Dict["activation"]["sigmoid"]:
         loss_plot.add_plot_data(loss, N)
@@ -76,7 +76,6 @@ for activation in [Dict["activation"]["relu"], Dict["activation"]["sigmoid"], Di
     elif activation == Dict["activation"]["elu"]:
         elu = solver.predict(DataSave)
     elif activation == Dict["activation"]["hard sigmoid"]:
-        loss_plot.add_plot_data(loss, N)
         hardsigmoid = solver.predict(DataSave)
     elif activation == Dict["activation"]["linear"]:
         linear = solver.predict(DataSave)
