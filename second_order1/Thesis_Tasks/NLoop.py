@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from IPython.display import set_matplotlib_formats
+#from IPython.display import set_matplotlib_formats
 from prettytable import PrettyTable
 
 # Mara classes
@@ -10,7 +10,7 @@ from second_order1.classes.Dictionary import Dictionary
 from second_order1.classes.LossPlot import LossPlot
 from second_order1.classes.Error import Error
 
-set_matplotlib_formats('pdf', 'svg')
+#set_matplotlib_formats('pdf', 'svg')
 
 plt.rc('text', usetex=False)
 plt.rc('font', family='serif')
