@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-#from IPython.display import set_matplotlib_formats
-#import matplotlib_inline
+# from IPython.display import set_matplotlib_formats
+# import matplotlib_inline
 from prettytable import PrettyTable
 
 # Mara classes
@@ -11,7 +11,7 @@ from second_order1.classes.Dictionary import Dictionary
 from second_order1.classes.LossPlot import LossPlot
 from second_order1.classes.Error import Error
 
-#set_matplotlib_formats('pdf', 'svg')
+# set_matplotlib_formats('pdf', 'svg')
 
 plt.rc('text', usetex=False)
 plt.rc('font', family='serif')
@@ -48,53 +48,40 @@ initializer = Dict["initializer"]["GlorotNormal"]
 activation = Dict["activation"]["sigmoid"]
 optimizer = Dict["optimizer"]["Adamax"]
 a, b, h, alpha = 0, 1, np.sqrt(2), 1
-epochs = 25000
+epochs = 250
 order = 2
 diffEqf = "first"
 prediction_save = False
 weights_save = False
 
-for N in [10, 50, 100, 150, 200, 500, 1000]:
+models = []
+numbers = [10, 50, 100, 150, 200, 500, 1000]
+for N in numbers:
     training_data = np.linspace(a, b, N, endpoint=False)[1:]  # for training values without considering the end points
 
+    solver = ODEsolverf(order, diffEqf, training_data, epochs, architecture, initializer, activation, optimizer,
+                        prediction_save,
+                        weights_save, h, alpha)
 
-
-    solver = ODEsolverf(order, diffEqf, training_data, epochs, architecture, initializer, activation, optimizer, prediction_save,
-                                                         weights_save, h, alpha)
-    history = solver.train()
-    epoch, loss = solver.get_loss(history)
+    epoch, loss = solver.get_loss()
+    loss_plot.add_plot_data(loss, N)
+    models.append(solver)
     x_predict = np.linspace(a, b, num=N)  # testing data: will include the end points
-    #y_predict = solver.predict(x_predict)
+    # y_predict = solver.predict(x_predict)
 
-    if N != 1000:
-        loss_plot.add_plot_data(loss, N)
-
-    match N:
-        case 10:
-            PTS_10 = solver.predict(DataSave)
-        case 50:
-            PTS_50 = solver.predict(DataSave)
-        case 100:
-            PTS_100 = solver.predict(DataSave)
-        case 150:
-            PTS_150 = solver.predict(DataSave)
-        case 200:
-            PTS_200 = solver.predict(DataSave)
-        case 500:
-            PTS_500 = solver.predict(DataSave)
-        case _:
-            EXACT = solver.predict(DataSave)
+PTS = []
+for model, number in zip(models, numbers):
+    PTS.append(model.predict(DataSave))
 
 loss_plot.plot_graph(Nstring)
 table = PrettyTable(['X PTS', 'Y_E', 'Y_10', 'Y_50', 'Y_100', 'Y_150', 'Y_200', 'Y_500'])
 
 for i in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
     table.add_row(
-        [round(DataSave[i], 1), round(*EXACT[i], 8), round(*PTS_10[i], 8), round(*PTS_50[i], 8), round(*PTS_100[i], 8),
-         round(*PTS_150[i], 8), round(*PTS_200[i], 8), round(*PTS_500[i], 8)])
+        [round(DataSave[i], 1), round(*PTS[6][i], 8), round(*PTS[0][i], 8), round(*PTS[1][i], 8), round(*PTS[2][i], 8),
+         round(*PTS[3][i], 8), round(*PTS[4][i], 8), round(*PTS[5][i], 8)])
 print(table)
 
 x = ['1/10', '1/50', '1/100', '1/150', '1/200', '1/500']
 
 error = Error(EXACT, [PTS_10, PTS_50, PTS_100, PTS_150, PTS_200, PTS_500], x)
-
