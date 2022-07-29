@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from IPython.display import set_matplotlib_formats
-import matplotlib_inline
+#from IPython.display import set_matplotlib_formats
+#import matplotlib_inline
 from prettytable import PrettyTable
 
 # Mara classes
@@ -43,20 +43,21 @@ Nstring = ["10 Data points", "50 Data points", "100 Data points", "150 Data poin
            "200 Data points", "500 Data points"]
 
 loss_plot = LossPlot()
+architecture = [16]  # one hidden layer with 16 neurons
+initializer = Dict["initializer"]["GlorotNormal"]
+activation = Dict["activation"]["sigmoid"]
+optimizer = Dict["optimizer"]["Adamax"]
+a, b, h, alpha = 0, 1, np.sqrt(2), 1
+epochs = 25000
+order = 2
+diffEqf = "first"
+prediction_save = False
+weights_save = False
 
 for N in [10, 50, 100, 150, 200, 500, 1000]:
-    a, b, h, alpha = 0, 1, np.sqrt(2), 1
-    epochs = 25000
-
-    order = 2
-    diffEqf = "first"
     training_data = np.linspace(a, b, N, endpoint=False)[1:]  # for training values without considering the end points
-    architecture = [16]  # one hidden layer with 16 neurons
-    initializer = Dict["initializer"]["GlorotNormal"]
-    activation = Dict["activation"]["sigmoid"]
-    optimizer = Dict["optimizer"]["Adamax"]
-    prediction_save = False
-    weights_save = False
+
+
 
     solver = ODEsolverf(order, diffEqf, training_data, epochs, architecture, initializer, activation, optimizer, prediction_save,
                                                          weights_save, h, alpha)

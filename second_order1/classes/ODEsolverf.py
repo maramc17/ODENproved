@@ -49,26 +49,7 @@ class ODEsolverf:
         if weights_save:
             self.weights = []
 
-    def add_layer(self, model, layer):
-        model.add(layer)
-
-    def build_input_layer(self, model):
-        input_tensor = tf.keras.layers.Input(shape=(1,))
-        self.add_layer(model, input_tensor)
-
-    def build_hidden_layer(self, model, nodes, activ_func="sigmoid", kernel_init='glorot_uniform', bias_init='zeros'):
-        hidden_layer = tf.keras.layers.Dense(nodes,
-                                             activation=activ_func,
-                                             kernel_initializer=kernel_init,
-                                             bias_initializer=bias_init
-                                             )
-        self.add_layer(model, hidden_layer)
-
-    def build_output_layer(self, model, nodes, activ_func="sigmoid", kernel_init="glorot_uniform"):
-        output_layer = tf.keras.layers.Dense(nodes, activation=activ_func, kernel_initializer=kernel_init)
-        self.add_layer(model,output_layer)
-
-    def build_model_new(self):
+    def build_model(self):
         """
         Builds a customized neural network model.
         """
@@ -82,51 +63,27 @@ class ODEsolverf:
             """
             Build the input layer
             """
-            self.build_input_layer(model)
+            model.add(tf.keras.layers.InputLayer(input_shape=(1,)))
             """
             Build the hidden nodes
             """
-            for nodes in layers[1:]:
-                self.build_hidden_layer(model, nodes, activation, kernel_initializer)
+            for nodes in layers:
+                model.add(tf.keras.layers.Dense(nodes,
+                                                activation=activation,
+                                                kernel_initializer=kernel_initializer
+                                                ))
             """
             Build the output layer
             """
-            self.build_output_layer(model, 1)
+            model.add(tf.keras.layers.Dense(1,
+                                            activation=activation,
+                                            kernel_initializer=kernel_initializer
+                                            ))
         else:
-            self.build_output_layer(model, 1)
+            model.add(tf.keras.layers.Dense(1, activation=activation,
+                                            kernel_initializer=kernel_initializer
+                                            ))
 
-        return model
-
-    def build_model(self):
-        """
-        Builds a customized neural network model.
-        """
-        architecture = self.architecture
-        initializer = self.initializer
-        activation = self.activation
-
-        model = tf.keras.Sequential()
-
-        nb_hidden_layers = len(architecture)
-        input_tensor = tf.keras.layers.Input(shape=(1,))
-        hidden_layers = []
-
-        if nb_hidden_layers >= 1:
-            hidden_layer = tf.keras.layers.Dense(architecture[0], kernel_initializer=initializer,
-                                                 bias_initializer='zeros', activation=activation)(input_tensor)
-            hidden_layers.append(hidden_layer)
-            for i in range(1, nb_hidden_layers):
-                hidden_layer = tf.keras.layers.Dense(architecture[i], kernel_initializer=initializer,
-                                                     bias_initializer='zeros', activation=activation)(
-                    hidden_layers[i - 1])
-                hidden_layers.append(hidden_layer)
-            output_layer = tf.keras.layers.Dense(1, kernel_initializer=initializer, bias_initializer='zeros',
-                                                 activation=tf.identity)(hidden_layers[-1])
-        else:
-            output_layer = tf.keras.layers.Dense(1, kernel_initializer=initializer, bias_initializer='zeros',
-                                                 activation=tf.identity)(input_tensor)
-
-        model = tf.keras.Model(inputs=input_tensor, outputs=output_layer)
         return model
 
     @tf.function
@@ -226,7 +183,8 @@ class ODEsolverf:
                     print('Weights and biases saved at epoch: {}'.format(epoch))
 
             start_time = time.time()
-            history = neural_net.fit(x=training_data, y=training_data, batch_size=self.n, epochs=self.epochs, callbacks=[PredictionCallback()])
+            history = neural_net.fit(x=training_data, y=training_data, batch_size=self.n, epochs=self.epochs,
+                                     callbacks=[PredictionCallback()])
             print(f"{self.GREEN}---   %s seconds ---  " % (time.time() - start_time))
             print(f"{self.RESET}")
 
