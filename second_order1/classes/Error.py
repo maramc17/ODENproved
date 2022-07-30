@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
-
+import numpy as np
+from numpy.linalg import norm
 
 def computeError(x, y):
     """
@@ -14,7 +15,8 @@ def computeError(x, y):
     Thus, this function creates and returns the summation of the squared absolute value of the difference between
         a list of exact values and a list of test values
     """
-    return sum([abs(exact - value) ** 2 for exact, value in zip(x, y)])
+    return norm(x=abs(y-x), ord=2)
+        #sum([abs(exact - value) ** 2 for exact, value in zip(x, y)])
 
 
 class Error:
@@ -56,10 +58,15 @@ class Error:
             After find_error has done its job, we will have lists of x and y values concerning the error of our program
             This function creates a plot of those lists.
         """
+        temp_x = [1, 2, 3, 4, 5, 6]
         fig1 = plt.figure(1)
         ax = fig1.add_subplot()
-        ax.plot(self.x_labels, self.error_vals, linewidth=2)
+        ax.plot(self.x_labels, np.log(self.error_vals), linewidth=2, color="purple", label='Original')
+        a, b = np.polyfit(temp_x, self.error_vals, 1)
+        print("SLOPE: " + str(a))
+        ax.plot(self.x_labels, a*(np.array(temp_x)) + b, linewidth=2, color="violet", label="Best Fit")
         ax.set_yscale('log')
+        ax.legend()
         # ax.set_xscale('log')
         plt.xlabel("h", fontsize=12)
         plt.ylabel("Error", fontsize=12)
